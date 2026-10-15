@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visor · Demanda intermunicipal Bogotá–Región 2022–2025 (maqueta)</title>
+<style>
+:root{--p:#173D62;--az:#2F7381;--am:#E0AE13;--rj:#EA3839;--vd:#86C656;--cl:#5AA9D8;--na:#F49F42;--bg:#f5f5f5;--tx:#222;--mu:#666}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--tx);display:flex;flex-direction:column;height:100vh}
+header{background:linear-gradient(135deg,var(--p),var(--az));color:#fff;padding:10px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{font-size:17px;margin:0}header p{margin:2px 0 0;font-size:12px;opacity:.85}
+.badge{background:var(--am);color:#333;font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px}
+main{flex:1;display:grid;grid-template-columns:250px 1fr 310px;gap:10px;padding:10px;min-height:0}
+aside,.mapbox{background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);min-height:0}
+aside{padding:12px;overflow:auto;font-size:13px}
+h3{font-size:13px;color:var(--p);margin:14px 0 6px;border-left:4px solid var(--az);padding-left:8px}h3:first-child{margin-top:0}
+label{display:flex;align-items:center;gap:6px;margin:4px 0;cursor:pointer}
+.seg{display:flex;border:1px solid #ccc;border-radius:6px;overflow:hidden;margin:4px 0}
+.seg button{flex:1;border:0;background:#fff;padding:6px;font-size:12px;cursor:pointer}.seg button.on{background:var(--p);color:#fff}
+.mapbox{position:relative;display:flex;flex-direction:column}
+.tabs{display:flex;border-bottom:1px solid #e3e3e3}.tabs button{border:0;background:none;padding:9px 14px;font-size:13px;cursor:pointer;color:var(--mu);border-bottom:3px solid transparent}
+.tabs button.on{color:var(--p);font-weight:700;border-color:var(--am)}
+#view{flex:1;min-height:0;position:relative;overflow:auto}
+svg{width:100%;height:100%;display:block;background:#EAF4F8}
+.dep{fill:#fff;stroke:#9bb;stroke-width:1.5}
+.dot{cursor:pointer;stroke:#fff;stroke-width:1.5}.dot:hover,.dot.sel{stroke:#000;stroke-width:2.5}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.k{background:#f0f7ff;border-left:3px solid var(--az);padding:6px 8px;border-radius:4px}.k b{display:block;font-size:16px;color:var(--p)}.k span{font-size:11px;color:var(--mu)}
+.bar{display:flex;align-items:center;gap:6px;margin:4px 0;font-size:12px;cursor:pointer}.bar i{display:block;height:12px;border-radius:2px}.bar .n{width:92px;flex:none}.bar .v{margin-left:auto;color:var(--mu);white-space:nowrap}
+.note{background:#fff8e1;border-left:3px solid var(--am);padding:8px;font-size:11.5px;color:#444;border-radius:4px;margin-top:10px;line-height:1.4}
+.legend{position:absolute;left:10px;bottom:10px;background:#fffd;padding:8px 10px;border-radius:6px;font-size:11px;box-shadow:0 1px 4px #0003}
+.legend div{display:flex;align-items:center;gap:6px;margin:2px 0}.legend i{width:12px;height:12px;border-radius:50%}
+#ext{padding:16px}
+@media(max-width:1000px){body{height:auto}main{grid-template-columns:1fr}#view{height:520px}}
+</style>
+</head>
+<body>
+<header>
+<div><h1>Visor de demanda formal de transporte intermunicipal · Bogotá–Región</h1>
+<p>Registros VIGIA (Supertransporte) 2022–2025 · 51,1 M de registros · 448,2 M de pasajeros · 236 rutas georreferenciadas</p></div>
+<span class="badge">MAQUETA · geometría esquemática</span>
+</header>
+<main>
+<aside>
+<h3>Capas</h3>
+<label><input type="checkbox" id="l-des" checked> Líneas de deseo (demanda observada)</label>
+<label><input type="checkbox" id="l-rut"> Cobertura potencial (rutas)</label>
+<label><input type="checkbox" id="l-acc" checked> Accesos a Bogotá</label>
+<label><input type="checkbox" id="l-via"> Red vial (esquemática)</label>
+<label><input type="checkbox" id="l-lab" checked> Etiquetas</label>
+<h3>Corredor funcional</h3>
+<div id="corr"></div>
+<h3>Periodo (KPIs)</h3>
+<div class="seg" id="yr"></div>
+<h3>Acceso asociado</h3>
+<div id="acc"></div>
+</aside>
+
+<div class="mapbox">
+<div class="tabs"><button class="on" data-v="map">Cundinamarca · mapa</button><button data-v="ext">Fuera de Cundinamarca · ranking</button></div>
+<div id="view"></div>
+<div class="legend" id="leg"></div>
+</div>
+
+<aside>
+<h3>Relación directa con Bogotá</h3>
+<div class="kpis" id="kpis"></div>
+<h3 id="dt">Detalle territorial</h3>
+<div id="det" style="font-size:12.5px;line-height:1.5">Seleccione un municipio en el mapa o en el ranking.</div>
+<h3>Top 10 municipios (2022–2025)</h3>
+<div id="rank"></div>
+<div class="note"><b>Lectura:</b> los pasajeros son registros de terminales habilitadas, no aforo vial ni ocupación. La cobertura de rutas es potencial; la ausencia de registro terminal no implica ausencia de servicio. Mapa esquemático, no cartografía oficial.</div>
+</aside>
+</main>
+
+<script>
+const fmt=n=>n.toLocaleString('es-CO');
+const COR={Sur:'#173D62',Norte:'#2F7381','Magdalena Medio':'#E0AE13',Oriente:'#F49F42',Occidente:'#86C656'};
+const CT={Sur:[23,19161570,62.79],Norte:[28,9059236,29.69],'Magdalena Medio':[25,1475448,4.83],Oriente:[20,488558,1.6],Occidente:[20,332634,1.09]};
+// Tabla 5 (pasajeros, despachos, participación). Corredor y coordenadas: asignación esquemática de la maqueta.
+const M=[
+['Girardot',-74.80,4.30,7595568,1018088,24.89,'Sur'],['Sibaté',-74.26,4.49,4634667,871169,15.19,'Sur'],
+['Fusagasugá',-74.36,4.34,3047339,432836,9.99,'Sur'],['Tenjo',-74.14,4.87,1555818,147966,5.10,'Norte'],
+['Gachancipá',-73.87,4.99,1505904,148269,4.93,'Norte'],['Soacha',-74.22,4.58,1102803,41087,3.61,'Sur'],
+['Villa de San Diego de Ubaté',-73.82,5.31,1093467,191166,3.58,'Norte'],['Guatavita',-73.83,4.93,1086667,101241,3.56,'Norte'],
+['Agua de Dios',-74.67,4.38,1027726,162824,3.37,'Sur'],['Villapinzón',-73.59,5.22,999883,123179,3.28,'Norte']];
+// Tabla 3
+const YR={Todos:{s:81155835,l:51639992},2022:{s:15336531,l:11340554},2023:{s:19448227,l:11629387},2024:{s:22576222,l:13751131},2025:{s:23794855,l:14918920}};
+const ACC=[['Autopista Sur',10267401,33.64],['Calle 13',9247656,30.3],['Carrera Séptima',4365770,14.31],['Calle 80',3135708,10.28],['Autopista Norte',1912687,6.27],['Vía La Calera',1322485,4.33],['Avenida al Llano',265739,.87]];
+const EXT=[['Boyacá',21112872],['Tolima',11430255],['Valle del Cauca',10755067],['Huila',9384591],['Meta',9094089],['Santander',5696126],['Casanare',4661527],['Norte de Santander',4053101],['Risaralda',3462185],['Putumayo',3392573]];
+const DEPT=[[-74.85,4.25],[-74.75,4.1],[-74.5,4.1],[-74.3,3.95],[-74.0,4.05],[-73.7,4.1],[-73.2,4.2],[-73.05,4.5],[-73.3,4.75],[-73.2,5.0],[-73.4,5.3],[-73.6,5.55],[-73.9,5.5],[-74.1,5.45],[-74.4,5.55],[-74.75,5.45],[-74.8,5.1],[-74.7,4.8],[-74.9,4.55]];
+const BOG=[-74.072,4.711];
+// accesos esquemáticos: nombre, ángulo (grados desde el este, antihorario), largo
+const AC=[['Autopista Sur',-100,70],['Calle 13',180,70],['Carrera Séptima',75,55],['Calle 80',150,70],['Autopista Norte',90,70],['Vía La Calera',40,50],['Avenida al Llano',-35,75],['Vía Choachí',-15,45]];
+const VIA=[[[-74.8,4.3],[-74.36,4.34],[-74.26,4.49],[-74.07,4.71]],[[-74.07,4.71],[-74.14,4.87],[-74.0,5.02],[-73.82,5.31]],[[-74.07,4.71],[-73.87,4.99],[-73.59,5.22]],[[-74.07,4.71],[-74.36,4.81],[-74.6,5.07]],[[-74.07,4.71],[-73.7,4.45],[-73.35,4.5]]];
+const k=380,px=p=>[(p[0]+75)*k,(5.6-p[1])*k],S=v=>v.map(px).map(a=>a.join(',')).join(' ');
+const st={corr:new Set(Object.keys(COR)),yr:'Todos',sel:null,view:'map'};
+const $=id=>document.getElementById(id);
+
+function rad(v){return 7+Math.sqrt(v/7595568)*30}
+function drawMap(){
+ const b=px(BOG);let g='';
+ g+=`<polygon class="dep" points="${S(DEPT)}"/>`;
+ if($('l-via').checked)VIA.forEach(v=>g+=`<polyline points="${S(v)}" fill="none" stroke="#9a9a9a" stroke-width="2"/>`);
+ const vis=M.filter(m=>st.corr.has(m[6]));
+ if($('l-rut').checked)vis.forEach(m=>{const p=px(m);g+=`<line x1="${b[0]}" y1="${b[1]}" x2="${p[0]}" y2="${p[1]}" stroke="${COR[m[6]]}" stroke-width="1.5" stroke-dasharray="5 4" opacity=".55"/>`});
+ if($('l-des').checked)vis.forEach(m=>{const p=px(m);g+=`<line x1="${b[0]}" y1="${b[1]}" x2="${p[0]}" y2="${p[1]}" stroke="${COR[m[6]]}" stroke-width="${1+m[3]/7595568*14}" opacity=".6" stroke-linecap="round"/>`});
+ if($('l-acc').checked)AC.forEach(a=>{const r=a[1]*Math.PI/180,e=[b[0]+Math.cos(r)*a[2]*1.5,b[1]-Math.sin(r)*a[2]*1.5];
+  g+=`<line x1="${b[0]}" y1="${b[1]}" x2="${e[0]}" y2="${e[1]}" stroke="#EA3839" stroke-width="3.5" stroke-linecap="round"/>`;
+  if($('l-lab').checked)g+=`<text x="${e[0]}" y="${e[1]-5}" font-size="10" fill="#b02a2b" text-anchor="middle">${a[0]}</text>`});
+ vis.forEach(m=>{const p=px(m);g+=`<circle class="dot ${st.sel===m[0]?'sel':''}" data-n="${m[0]}" cx="${p[0]}" cy="${p[1]}" r="${rad(m[3])}" fill="${COR[m[6]]}" fill-opacity=".85"><title>${m[0]}: ${fmt(m[3])} pasajeros</title></circle>`;
+  if($('l-lab').checked)g+=`<text x="${p[0]}" y="${p[1]+rad(m[3])+12}" font-size="11" text-anchor="middle" fill="#173D62" font-weight="600">${m[0].replace('Villa de San Diego de ','')}</text>`});
+ g+=`<rect x="${b[0]-9}" y="${b[1]-9}" width="18" height="18" fill="#E0AE13" stroke="#173D62" stroke-width="3" transform="rotate(45 ${b[0]} ${b[1]})"/><text x="${b[0]}" y="${b[1]+30}" font-size="13" font-weight="700" text-anchor="middle" fill="#173D62">BOGOTÁ</text>`;
+ $('view').innerHTML=`<svg viewBox="0 0 760 650" preserveAspectRatio="xMidYMid meet">${g}</svg>`;
+ $('view').querySelectorAll('.dot').forEach(c=>c.onclick=()=>pick(c.dataset.n));
+}
+function drawExt(){
+ const mx=EXT[0][1];
+ $('view').innerHTML=`<div id="ext"><h3>Principales departamentos fuera de Cundinamarca · pasajeros 2022–2025</h3><p style="font-size:12px;color:#666;margin:0 0 10px">26 departamentos · 102,3 M pasajeros (77,0 % de la relación directa) · los cinco primeros reúnen 60,4 %.</p>`+
+ EXT.map((e,i)=>`<div class="bar"><span class="n" style="width:130px">${i+1}. ${e[0]}</span><i style="width:${e[1]/mx*55}%;background:${i<5?'#173D62':'#5AA9D8'}"></i><span class="v">${fmt(e[1])}</span></div>`).join('')+
+ `<div class="note">Corredores viales externos (pasajeros): Sur–Suroccidente 33,4 M · Norte 30,9 M · Oriente–Llano 15,3 M · Occidente 15,1 M · Resto nacional 7,6 M.</div></div>`;
+}
+function render(){st.view==='map'?drawMap():drawExt();$('leg').style.display=st.view==='map'?'block':'none'}
+function pick(n){st.sel=n;const m=M.find(x=>x[0]===n);
+ $('dt').textContent=m[0];
+ $('det').innerHTML=`<div class="kpis"><div class="k"><b>${fmt(m[3])}</b><span>pasajeros</span></div><div class="k"><b>${fmt(m[4])}</b><span>despachos</span></div><div class="k"><b>${m[5].toString().replace('.',',')} %</b><span>de Cundinamarca</span></div><div class="k"><b>${(m[3]/m[4]).toFixed(2).replace('.',',')}</b><span>pasajeros/despacho</span></div></div><p style="margin:8px 0 0">Corredor: <b style="color:${COR[m[6]]}">${m[6]}</b></p>`+(m[0]==='Soacha'?'<div class="note">26,84 pasajeros por despacho: leer con cautela (patrones de reporte o rutas agregadas); no es ocupación.</div>':'');
+ render();rank()}
+function rank(){$('rank').innerHTML=M.map((m,i)=>`<div class="bar" data-n="${m[0]}"><span class="n">${i+1}. ${m[0].replace('Villa de San Diego de ','')}</span><i style="width:${m[3]/7595568*90}px;background:${COR[m[6]]}"></i><span class="v">${m[5].toString().replace('.',',')} %</span></div>`).join('');
+ $('rank').querySelectorAll('.bar').forEach(b=>b.onclick=()=>pick(b.dataset.n))}
+function kpis(){const y=YR[st.yr],t=y.s+y.l;$('kpis').innerHTML=
+ `<div class="k"><b>${fmt(t)}</b><span>pasajeros OD directos · ${st.yr==='Todos'?'2022–2025':st.yr}</span></div><div class="k"><b>${(y.s/t*100).toFixed(1).replace('.',',')} %</b><span>salidas desde Bogotá</span></div><div class="k"><b>${fmt(y.s)}</b><span>pasajeros de salida</span></div><div class="k"><b>${fmt(y.l)}</b><span>pasajeros de llegada</span></div>`}
+// controles
+$('corr').innerHTML=Object.keys(COR).map(c=>`<label><input type="checkbox" checked data-c="${c}"><i style="width:12px;height:12px;border-radius:50%;background:${COR[c]}"></i>${c} <small style="color:#666;margin-left:auto">${CT[c][2].toString().replace('.',',')} %</small></label>`).join('');
+$('corr').onchange=e=>{e.target.checked?st.corr.add(e.target.dataset.c):st.corr.delete(e.target.dataset.c);render()};
+$('yr').innerHTML=Object.keys(YR).map(y=>`<button data-y="${y}" class="${y==='Todos'?'on':''}">${y==='Todos'?'Total':y}</button>`).join('');
+$('yr').onclick=e=>{if(!e.target.dataset.y)return;st.yr=e.target.dataset.y;[...$('yr').children].forEach(b=>b.classList.toggle('on',b===e.target));kpis()};
+$('acc').innerHTML=ACC.map(a=>`<div class="bar"><span class="n" style="width:105px">${a[0]}</span><i style="width:${a[2]*1.2}px;background:#EA3839"></i><span class="v">${a[2].toString().replace('.',',')} %</span></div>`).join('')+'<div style="font-size:11px;color:#666">% de pasajeros de Cundinamarca asociados por rutas.</div>';
+document.querySelectorAll('aside input[id^="l-"]').forEach(i=>i.onchange=render);
+document.querySelector('.tabs').onclick=e=>{if(!e.target.dataset.v)return;st.view=e.target.dataset.v;[...e.currentTarget.children].forEach(b=>b.classList.toggle('on',b===e.target));render()};
+$('leg').innerHTML='<b>Corredor</b>'+Object.keys(COR).map(c=>`<div><i style="background:${COR[c]}"></i>${c}</div>`).join('')+'<div><i style="background:#EA3839;border-radius:2px"></i>Acceso a Bogotá</div><div style="color:#666">Tamaño/grosor ∝ pasajeros</div>';
+kpis();rank();render();
+</script>
+</body>
+</html>
