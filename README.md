@@ -1,2 +1,2 @@
 # RMBC_beta
-Soluciones betasRMABC
+Soluciones betasRMBC
